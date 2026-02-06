@@ -46,7 +46,7 @@ We conducted a pilot study on SOTA MLLMs (e.g., Qwen3-VL, Lingshu), revealing th
 * 🔄 **Anomaly Blindness:** Models are insensitive to structural "cut-paste" artifacts, overlooking artificial modifications in over 90% of cases.
 
 <div align="center">
-  <img src="assets/pilot_study.png" width="35%" alt="Pilot Study Findings">
+  <img src="asset/pilot_study.png" width="35%" alt="Pilot Study Findings">
 </div>
 
 > *Figure 1: The pilot study revealing Inconsistency Between Scales (Left), Blindness to Relative Spatial Positions (Middle), and Insensitivity to Structural Anomalies (Right).*
@@ -64,7 +64,7 @@ Med-Scout actively cures geometric blindness via **Geometry-Aware RL Post-Traini
 We optimize these tasks using **Group Relative Policy Optimization (GRPO)** with a specialized **Dense Geometric Reward (DGR)** mechanism to ensure stable convergence.
 
 <div align="center">
-  <img src="assets/framework.png" width="80%" alt="Med-Scout Framework">
+  <img src="asset/framework.png" width="80%" alt="Med-Scout Framework">
 </div>
 
 > *Figure 2: Overview of the Med-Scout Framework. Unlabeled medical images are transformed into verifiable proxy tasks to align semantic generation with geometric reality.*
@@ -78,7 +78,7 @@ We introduce **Med-Scout-Bench**, a geometrically rigorous benchmark comprising 
 Med-Scout yields massive improvements across all backbones. For instance, the aligned **Qwen3-VL-8B-Instruct improves average accuracy from 39.7% to 83.6%**, significantly outperforming proprietary models like GPT-5 and Gemini-3-Flash.
 
 <div align="center">
-  <img src="assets/med-scout-bench_2.png" width="70%" alt="Med-Scout Bench Performance">
+  <img src="asset/med-scout-bench_2.png" width="70%" alt="Med-Scout Bench Performance">
 </div>
 
 > *Figure 3: Performance comparison on Med-Scout-Bench showing substantial gains across various backbones.*
@@ -114,7 +114,7 @@ To prove true grounding, we analyzed the **Energy Landscape** of factual reports
 * ✅ **Med-Scout:** Establishes a distinct energy barrier (**Gap ≈ 0.69**), effectively separating factual geometric constraints from errors.
 
 <div align="center">
-  <img src="assets/all_energy.png" width="80%" alt="Energy Gap Analysis">
+  <img src="asset/all_energy.png" width="80%" alt="Energy Gap Analysis">
 </div>
 
 > *Figure 4: Energy Landscape of Factual Consistency. Med-Scout establishes a robust barrier against geometric hallucinations.*
