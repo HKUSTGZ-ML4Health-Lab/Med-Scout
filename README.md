@@ -121,11 +121,6 @@ To prove true grounding, we analyzed the **Energy Landscape** of factual reports
 
 ---
 
-## 🛠️ Training
-
-Coming soon.
-
----
 
 ## 🩺 Inference
 
