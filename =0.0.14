@@ -1,0 +1,16 @@
+Looking in indexes: http://mirrors.aliyun.com/pypi/simple
+Collecting qwen_vl_utils
+  Downloading http://mirrors.aliyun.com/pypi/packages/c4/43/80f67e0336cb2fc725f8e06f7fe35c1d0fe946f4d2b8b2175e797e07349e/qwen_vl_utils-0.0.14-py3-none-any.whl (8.1 kB)
+Collecting av (from qwen_vl_utils)
+  Downloading http://mirrors.aliyun.com/pypi/packages/d4/db/b27bdd20c9dc80de5b8792dae16dd6f4edf16408c0c7b28070c6228a8057/av-16.0.1-cp310-cp310-manylinux_2_28_x86_64.whl (39.7 MB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 39.7/39.7 MB 19.2 MB/s  0:00:02
+Requirement already satisfied: packaging in /root/miniconda3/envs/meds/lib/python3.10/site-packages (from qwen_vl_utils) (25.0)
+Requirement already satisfied: pillow in /root/miniconda3/envs/meds/lib/python3.10/site-packages (from qwen_vl_utils) (11.3.0)
+Requirement already satisfied: requests in /root/miniconda3/envs/meds/lib/python3.10/site-packages (from qwen_vl_utils) (2.32.5)
+Requirement already satisfied: charset_normalizer<4,>=2 in /root/miniconda3/envs/meds/lib/python3.10/site-packages (from requests->qwen_vl_utils) (3.4.4)
+Requirement already satisfied: idna<4,>=2.5 in /root/miniconda3/envs/meds/lib/python3.10/site-packages (from requests->qwen_vl_utils) (3.11)
+Requirement already satisfied: urllib3<3,>=1.21.1 in /root/miniconda3/envs/meds/lib/python3.10/site-packages (from requests->qwen_vl_utils) (2.6.2)
+Requirement already satisfied: certifi>=2017.4.17 in /root/miniconda3/envs/meds/lib/python3.10/site-packages (from requests->qwen_vl_utils) (2025.11.12)
+Installing collected packages: av, qwen_vl_utils
+
+Successfully installed av-16.0.1 qwen_vl_utils-0.0.14

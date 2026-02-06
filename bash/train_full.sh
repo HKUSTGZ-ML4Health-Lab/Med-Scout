@@ -1,0 +1,41 @@
+CUDA_VISIBLE_DEVICES=0,1,2,3,4,5 \
+NPROC_PER_NODE=6 \
+swift rlhf \
+    --rlhf_type grpo \
+    --model 'path/to/Lingshu/' \
+    --model_type 'qwen2_5_vl' \
+    --external_plugins Med-Scout/examples/train/grpo/plugin/plugin.py \
+    --reward_funcs medscout_format medscout_accuracy \
+    --use_vllm false \
+    --train_type full \
+    --torch_dtype bfloat16 \
+    --attn_impl flash_attn \
+    --dataset 'train.jsonl' \
+    --val_dataset 'val.jsonl' \
+    --load_from_cache_file True \
+    --max_completion_length 1024 \
+    --num_train_epochs 2 \
+    --per_device_train_batch_size 32 \
+    --per_device_eval_batch_size 32 \
+    --learning_rate 1e-6 \
+    --gradient_accumulation_steps 1 \
+    --save_strategy 'steps' \
+    --eval_strategy 'steps' \
+    --eval_steps 400 \
+    --save_steps 1200 \
+    --save_total_limit 20 \
+    --logging_steps 1 \
+    --output_dir outputs/ \
+    --warmup_ratio 0.01 \
+    --dataloader_num_workers 8 \
+    --num_generations 8 \
+    --temperature 1.0 \
+    --system 'Med-Scout/examples/train/grpo/plugin/prompt_simple.txt' \
+    --deepspeed zero3 \
+    --log_completions true \
+    --report_to swanlab \
+    --swanlab_project med-scout \
+    --swanlab_token your_swanlab_token \
+    --num_iterations 1 \
+    --async_generate false \
+    --beta 0.001 \
