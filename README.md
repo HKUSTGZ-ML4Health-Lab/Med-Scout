@@ -31,6 +31,8 @@
 <br>
 🚧 Note: Model weights and Med-Scout-Bench are coming soon.
 
+❤️ Special thanks to [![Framework](https://img.shields.io/badge/Framework-ms--swift-orange?logo=github&style=flat-square)](https://github.com/modelscope/ms-swift) for providing a convenient framework for reinforcement learning training and inference.
+
 ## 📖 Abstract
 
 Despite recent Multimodal Large Language Models (MLLMs)' linguistic prowess in medical diagnosis, we find even state-of-the-art MLLMs suffer from a critical perceptual deficit: **geometric blindness** 🕶️. This failure to ground outputs in objective geometric constraints leads to plausible yet factually incorrect hallucinations, rooted in training paradigms that prioritize linguistic fluency over geometric fidelity. This paper introduces **Med-Scout**, a novel framework that “cures”💊 this blindness via Reinforcement Learning (RL) that leverages the intrinsic geometric logic latent within unlabeled medical images. Instead of relying on costly expert annotations, Med-Scout derives verifiable supervision signals through three strategic proxy tasks: Hierarchical Scale Localization, Topological Jigsaw Reconstruction, and Anomaly Consistency Detection. To rigorously quantify this deficit, we present **Med-Scout-Bench**, a new benchmark specifically designed to evaluate geometric perception. Extensive evaluations show that Med-Scout significantly mitigates geometric blindness, outperforming leading proprietary and open-source MLLMs by over **40%** on our benchmark. Furthermore, this enhanced geometric perception generalizes to broader medical understanding, achieving superior results on radiological and comprehensive medical VQA tasks.
