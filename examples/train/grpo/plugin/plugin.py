@@ -5,6 +5,8 @@ import textwrap
 from collections import Counter
 from copy import deepcopy
 from typing import Dict, List, Union
+import numpy as np
+from typing import Tuple, Optional
 
 import json
 import torch
@@ -92,7 +94,6 @@ class CountdownORM(ORM):
 orms['external_countdown'] = CountdownORM
 
 
-
 class MultiModalAccuracyORM(ORM):
 
     def __call__(self, completions, solution, **kwargs) -> List[float]:
@@ -138,38 +139,13 @@ class MultiModalAccuracyORM(ORM):
 orms['external_r1v_acc'] = MultiModalAccuracyORM
 
 
-import re
-import numpy as np
-from typing import List, Tuple, Optional
-
-# 假设 ORM 是框架中定义的基类，如果框架没暴露 ORM，可以去掉继承或替换为 object
-# from your_framework import ORM 
-
-import re
-import numpy as np
-from typing import List, Tuple, Optional
-
-# from your_framework import ORM 
-
-import re
-import numpy as np
-from typing import List, Tuple, Optional
-
-# 假设 ORM 是框架基类，如果框架没有暴露 ORM 类，可以将下行改为: class MedScoutBaseORM:
-# from your_framework import ORM 
-
 class MedScoutBaseORM(ORM):
-    """
-    基类：包含 Med-Scout 任务识别、文本提取、坐标转换和 IoU 计算等通用逻辑。
-    """
     def _extract_answer_content(self, text: str) -> str:
-        """从模型输出中提取 <answer> 标签内容"""
         if not text: return ""
         match = re.search(r'<answer>(.*?)</answer>', text, re.DOTALL)
         return match.group(1).strip() if match else text.strip()
 
     def _identify_task(self, solution: str) -> str:
-        """根据 GT 格式识别任务类型"""
         solution = solution.strip()
         if "Label" in solution:
             return "scale_size"
@@ -181,17 +157,15 @@ class MedScoutBaseORM(ORM):
             return "unknown"
         else:
             if re.match(r'^\d+$', solution):
-                return "replace" # 对应 Anomaly Detection 任务
+                return "replace"
             return "unknown"
 
     def _extract_coordinates(self, text: str) -> List[Tuple[int, int, int, int]]:
-        """提取坐标 (x1, y1, x2, y2)"""
         pattern = r'\(\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)\s*\)'
         matches = re.findall(pattern, text)
         return [(int(m[0]), int(m[1]), int(m[2]), int(m[3])) for m in matches]
     
     def _calculate_iou(self, box1, box2) -> float:
-        """计算 IoU"""
         x1_1, y1_1, x2_1, y2_1 = box1
         x1_2, y1_2, x2_2, y2_2 = box2
         
@@ -206,19 +180,10 @@ class MedScoutBaseORM(ORM):
         return inter / union if union > 0 else 0.0
 
     def _index_to_grid_coord(self, k: int, cols: int = 4) -> Tuple[int, int]:
-        """
-        新增：将一维索引 k 映射为 2D 网格坐标 (u, v)
-        对应公式: u = floor(k/4), v = k mod 4
-        """
         return k // cols, k % cols
 
 
 class MedScoutFormatORM(MedScoutBaseORM):
-    """
-    【格式奖励函数】
-    关注点：正则匹配、数量检查、逻辑约束 (如 x1<=x2)
-    权重上限：0.5 分
-    """
     def __call__(self, completions: List[str], solution: List[str], **kwargs) -> List[float]:
         rewards = []
         for completion, sol in zip(completions, solution):
@@ -230,7 +195,6 @@ class MedScoutFormatORM(MedScoutBaseORM):
                 task_type = self._identify_task(sol_content)
                 
                 if task_type == "replace":
-                    # 只要是数字即可
                     score = 1.0 if re.match(r'^\d+$', pred_content) else 0.0
                     
                 elif task_type == "scale_pos":
@@ -240,9 +204,6 @@ class MedScoutFormatORM(MedScoutBaseORM):
                     if not sol_coords: score = 0.0
                     elif not comp_coords: score = 0.0
                     else:
-                        # Step 1: 正则提取成功 (1/3)
-                        # Step 2: 数量对 (1/3)
-                        # Step 3: 坐标逻辑对 (1/3)
                         s1 = 1/3
                         s2 = 1/3 if len(comp_coords) == len(sol_coords) else 0.0
                         s3 = 0.0
@@ -257,8 +218,6 @@ class MedScoutFormatORM(MedScoutBaseORM):
                     if not sol_labels: score = 0.0
                     elif not comp_labels: score = 0.0
                     else:
-                        # Step 1: 格式对 (0.5)
-                        # Step 2: 数量对 (0.5)
                         s1 = 0.5
                         s2 = 0.5 if len(comp_labels) == len(sol_labels) else 0.0
                         score = s1 + s2
@@ -270,31 +229,19 @@ class MedScoutFormatORM(MedScoutBaseORM):
                     if not sol_seq: score = 0.0
                     elif len(comp_seq) != len(sol_seq): score = 0.0
                     else:
-                        # Step 1: 数量对 (0.5)
-                        # Step 2: 无重复 (0.5)
                         s1 = 0.5
                         s2 = 0.5 if len(set(comp_seq)) == len(comp_seq) else 0.0
                         score = s1 + s2
             except Exception:
                 score = 0.0
             
-            # === 应用权重: Max 0.5 ===
             rewards.append(float(score * 0.5))
             
         return rewards
 
 
 class MedScoutAccuracyORM(MedScoutBaseORM):
-    """
-    【准确性奖励函数】
-    关注点：数值匹配、IoU 计算、排序正确性、以及 Anomaly 任务的空间距离奖励
-    权重上限：1.0 分
-    """
     def __init__(self, tau: float = 1.0):
-        """
-        :param tau: 温度超参数 (Temperature hyperparameter)，用于控制距离惩罚的力度。
-                    tau 越小，对位置错误的惩罚越重。建议根据验证集调整 (e.g., 0.5, 1.0, 2.0)。
-        """
         super().__init__()
         self.tau = tau
 
@@ -309,48 +256,34 @@ class MedScoutAccuracyORM(MedScoutBaseORM):
                 task_type = self._identify_task(sol_content)
                 
                 if task_type == "replace":
-                    # === 修改部分开始: Anomaly Task (Euclidean Distance Reward) ===
                     try:
-                        # 1. 提取预测索引 k_hat 和 GT 索引 k_star
-                        # 使用 re.search 提取第一个整数，防止有多余字符
                         pred_match = re.search(r'\d+', pred_content)
                         k_hat = int(pred_match.group()) if pred_match else -1
                         k_star = int(sol_content)
 
-                        # 验证索引范围 (假设是 4x4 网格，索引 0-15)
                         if 0 <= k_hat <= 15 and 0 <= k_star <= 15:
-                            # 2. 映射到 2D 坐标 (u, v)
                             u_hat, v_hat = self._index_to_grid_coord(k_hat)
                             u_star, v_star = self._index_to_grid_coord(k_star)
-
-                            # 3. 计算欧氏距离
                             distance = np.sqrt((u_hat - u_star)**2 + (v_hat - v_star)**2)
 
-                            # 4. 计算指数奖励: exp(-dist / tau)
-                            # 当 distance=0 (完全正确) 时，reward=1.0
-                            # 当 distance 变大时，reward 平滑衰减
                             score = np.exp(-distance / self.tau)
                         else:
-                            # 如果预测值超出有效范围 (0-15) 或者无法解析，给 0 分
                             score = 0.0
                     except (ValueError, AttributeError):
                         score = 0.0
-                    # === 修改部分结束 ===
                         
                 elif task_type == "scale_pos":
                     comp_coords = self._extract_coordinates(pred_content)
                     sol_coords = self._extract_coordinates(sol_content)
-                    # 只有当能解析出坐标，且数量一致时，才计算 IoU
                     if comp_coords and sol_coords and len(comp_coords) == len(sol_coords):
                         ious = [self._calculate_iou(c, s) for c, s in zip(comp_coords, sol_coords)]
                         avg_iou = np.mean(ious)
                         if avg_iou >= 0.2:
-                            score = avg_iou # 直接返回 IoU 值 (0.0 ~ 1.0)
+                            score = avg_iou
 
                 elif task_type == "scale_size":
                     comp_labels = re.findall(r'Label [12]', pred_content)
                     sol_labels = re.findall(r'Label [12]', sol_content)
-                    # 只有数量一致才开始比对内容
                     if comp_labels and sol_labels and len(comp_labels) == len(sol_labels):
                         correct = sum(1 for c, s in zip(comp_labels, sol_labels) if c == s)
                         score = correct / len(sol_labels)
@@ -358,7 +291,6 @@ class MedScoutAccuracyORM(MedScoutBaseORM):
                 elif task_type == "shuffle":
                     comp_seq = [int(x) for x in re.findall(r'\d+', pred_content)]
                     sol_seq = [int(x) for x in re.findall(r'\d+', sol_content)]
-                    # 只有数量一致且无重复才开始比对内容
                     is_valid_format = (len(comp_seq) == len(sol_seq)) and (len(set(comp_seq)) == len(comp_seq))
                     
                     if is_valid_format:
@@ -370,13 +302,10 @@ class MedScoutAccuracyORM(MedScoutBaseORM):
             except Exception:
                 score = 0.0
                 
-            # === 应用权重: Max 1.0 ===
-            # 确保 score 是 float 类型
             rewards.append(float(score))
             
         return rewards
 
-# 注册奖励函数
 orms['medscout_format'] = MedScoutFormatORM
 orms['medscout_accuracy'] = MedScoutAccuracyORM
 
