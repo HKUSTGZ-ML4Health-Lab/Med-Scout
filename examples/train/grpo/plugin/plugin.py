@@ -138,7 +138,6 @@ class MultiModalAccuracyORM(ORM):
         return rewards
 orms['external_r1v_acc'] = MultiModalAccuracyORM
 
-
 class MedScoutBaseORM(ORM):
     def _extract_answer_content(self, text: str) -> str:
         if not text:
@@ -186,7 +185,6 @@ class MedScoutBaseORM(ORM):
     def _index_to_grid_coord(self, k: int, cols: int = 4) -> Tuple[int, int]:
         return k // cols, k % cols
 
-
 class MedScoutFormatORM(MedScoutBaseORM):
     def __call__(self, completions: List[str], solution: List[str], **kwargs) -> List[float]:
         rewards = []
@@ -197,7 +195,6 @@ class MedScoutFormatORM(MedScoutBaseORM):
             score = 0.0
             try:
                 task_type = self._identify_task(sol_content)
-                
                 if task_type == "replace":
                     score = 1.0 if re.match(r'^\d+$', pred_content) else 0.0
                     
@@ -248,7 +245,6 @@ class MedScoutFormatORM(MedScoutBaseORM):
             rewards.append(float(score * 0.5))
             
         return rewards
-
 
 class MedScoutAccuracyORM(MedScoutBaseORM):
     def __init__(self, tau: float = 1.0):
@@ -318,9 +314,6 @@ class MedScoutAccuracyORM(MedScoutBaseORM):
 
 orms['medscout_format'] = MedScoutFormatORM
 orms['medscout_accuracy'] = MedScoutAccuracyORM
-
-
-
 
 class MultiTurnThinkingTips(ORM):
     """
