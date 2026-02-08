@@ -141,7 +141,8 @@ orms['external_r1v_acc'] = MultiModalAccuracyORM
 
 class MedScoutBaseORM(ORM):
     def _extract_answer_content(self, text: str) -> str:
-        if not text: return ""
+        if not text:
+            return ""
         match = re.search(r'<answer>(.*?)</answer>', text, re.DOTALL)
         return match.group(1).strip() if match else text.strip()
 
@@ -169,10 +170,13 @@ class MedScoutBaseORM(ORM):
         x1_1, y1_1, x2_1, y2_1 = box1
         x1_2, y1_2, x2_2, y2_2 = box2
         
-        x1_i = max(x1_1, x1_2); y1_i = max(y1_1, y1_2)
-        x2_i = min(x2_1, x2_2); y2_i = min(y2_1, y2_2)
+        x1_i = max(x1_1, x1_2)
+        y1_i = max(y1_1, y1_2)
+        x2_i = min(x2_1, x2_2)
+        y2_i = min(y2_1, y2_2)
         
-        if x1_i >= x2_i or y1_i >= y2_i: return 0.0
+        if x1_i >= x2_i or y1_i >= y2_i:
+            return 0.0
         
         inter = (x2_i - x1_i) * (y2_i - y1_i)
         union = (x2_1 - x1_1)*(y2_1 - y1_1) + (x2_2 - x1_2)*(y2_2 - y1_2) - inter
@@ -201,8 +205,10 @@ class MedScoutFormatORM(MedScoutBaseORM):
                     comp_coords = self._extract_coordinates(pred_content)
                     sol_coords = self._extract_coordinates(sol_content)
                     
-                    if not sol_coords: score = 0.0
-                    elif not comp_coords: score = 0.0
+                    if not sol_coords:
+                        score = 0.0
+                    elif not comp_coords:
+                        score = 0.0
                     else:
                         s1 = 1/3
                         s2 = 1/3 if len(comp_coords) == len(sol_coords) else 0.0
@@ -215,8 +221,10 @@ class MedScoutFormatORM(MedScoutBaseORM):
                     comp_labels = re.findall(r'Label [12]', pred_content)
                     sol_labels = re.findall(r'Label [12]', sol_content)
                     
-                    if not sol_labels: score = 0.0
-                    elif not comp_labels: score = 0.0
+                    if not sol_labels:
+                        score = 0.0
+                    elif not comp_labels:
+                        score = 0.0
                     else:
                         s1 = 0.5
                         s2 = 0.5 if len(comp_labels) == len(sol_labels) else 0.0
@@ -226,8 +234,10 @@ class MedScoutFormatORM(MedScoutBaseORM):
                     comp_seq = [int(x) for x in re.findall(r'\d+', pred_content)]
                     sol_seq = [int(x) for x in re.findall(r'\d+', sol_content)]
                     
-                    if not sol_seq: score = 0.0
-                    elif len(comp_seq) != len(sol_seq): score = 0.0
+                    if not sol_seq:
+                        score = 0.0
+                    elif len(comp_seq) != len(sol_seq):
+                        score = 0.0
                     else:
                         s1 = 0.5
                         s2 = 0.5 if len(set(comp_seq)) == len(comp_seq) else 0.0
