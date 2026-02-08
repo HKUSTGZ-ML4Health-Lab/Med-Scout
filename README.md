@@ -31,7 +31,7 @@
 <br>
 🚧 Note: Model weights and Med-Scout-Bench are coming soon.
 
-❤️ Special thanks to [![Framework](https://img.shields.io/badge/Framework-ms--swift-orange?logo=github&style=flat-square)](https://github.com/modelscope/ms-swift) for providing a convenient framework for reinforcement learning training and inference.
+❤️ Special thanks to [![Framework](https://img.shields.io/badge/Framework-ms--swift-purple?logo=github&style=flat-square)](https://github.com/modelscope/ms-swift) for providing a convenient framework for reinforcement learning training and inference.
 
 ## 📖 Abstract
 
